@@ -34,4 +34,7 @@ group :development, :test do
 
   # テストフレームワーク（基本設計書 6章）
   gem "rspec-rails", "~> 8.1"
+
+  # テストデータの作成
+  gem "factory_bot_rails"
 end
