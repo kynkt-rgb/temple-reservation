@@ -23,23 +23,23 @@ PC の `infra/` フォルダで実行します。
 ```bash
 cd infra
 IP=$(terraform output -raw public_ip)
-SSH="ssh -i $HOME/.ssh/temple-ec2 ec2-user@$IP"
+ec2() { ssh -i "$HOME/.ssh/temple-ec2" "ec2-user@$IP" "$@"; }   # EC2 でコマンドを動かす
 
 # 1. コードを取得する
-$SSH 'git clone https://github.com/kynkt-rgb/temple-reservation.git ~/temple-reservation'
+ec2 'git clone https://github.com/kynkt-rgb/temple-reservation.git ~/temple-reservation'
 
 # 2. 秘密の値のファイルをつくる（パスワードは画面に出さずに渡す）
-terraform output -raw db_password | $SSH "read -r P; sudo mkdir -p /etc/temple-reservation; \
+terraform output -raw db_password | ec2 "read -r P; sudo mkdir -p /etc/temple-reservation; \
   printf 'RAILS_ENV=production\nRAILS_MAX_THREADS=3\nDB_HOST=%s\nDB_NAME=%s\nDB_USERNAME=%s\nDB_PASSWORD=%s\nSECRET_KEY_BASE=%s\n' \
   '$(terraform output -raw db_address)' '$(terraform output -raw db_name)' '$(terraform output -raw db_username)' \
   \"\$P\" \"\$(openssl rand -hex 64)\" | sudo tee /etc/temple-reservation/backend.env >/dev/null; \
   sudo chown root:ec2-user /etc/temple-reservation/backend.env; sudo chmod 640 /etc/temple-reservation/backend.env"
 
 # 3. Nginx・systemd を設定する
-$SSH 'sudo bash ~/temple-reservation/deploy/setup.sh'
+ec2 'sudo bash ~/temple-reservation/deploy/setup.sh'
 
 # 4. アプリをビルドして起動する（t3.micro では 10〜15分かかる）
-$SSH 'bash ~/temple-reservation/deploy/deploy.sh'
+ec2 'bash ~/temple-reservation/deploy/deploy.sh'
 ```
 
 ## 2回目から（コードを更新したとき）

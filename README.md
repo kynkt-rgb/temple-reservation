@@ -4,7 +4,7 @@
 
 紙のカレンダーとGoogleカレンダーでの二重管理をやめて予約を1か所にまとめ、予約の重複をシステムで防ぎます。
 
-> **現在の状況：実装中**（API・画面が完成。AWS への構築はこれから）
+> **現在の状況：公開中**（初級編）　http://52.198.9.123/
 
 ## 主な機能
 
@@ -39,6 +39,8 @@
 
 - [要件定義書](docs/requirements.md)
 - [基本設計書](docs/basic-design.md)
+- [デプロイ手順](docs/deploy.md)
+- [AWS の構築（Terraform）](infra/README.md)
 
 ## ディレクトリ構成
 
@@ -47,7 +49,8 @@ temple-reservation/
 ├── docs/        要件定義書・基本設計書
 ├── frontend/    Next.js
 ├── backend/     Rails（APIモード）
-└── infra/       Terraform（予定）
+├── infra/       Terraform（AWS の EC2・RDS）
+└── deploy/      EC2 へのデプロイ（Nginx・systemd・スクリプト）
 ```
 
 ## 開発環境での起動
