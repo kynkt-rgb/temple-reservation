@@ -29,7 +29,8 @@ threads_count = ENV.fetch("RAILS_MAX_THREADS", 3)
 threads threads_count, threads_count
 
 # Puma の待ち受けポート。Next.js（3000番）と重ならないよう 3001番にする（基本設計書 1.1）。
-port ENV.fetch("PORT", 3001)
+# 外からは Nginx 経由でだけ受け付けるので、待ち受けるのはこのサーバーの中（127.0.0.1）だけにする。
+port ENV.fetch("PORT", 3001), ENV.fetch("BIND_HOST", "127.0.0.1")
 
 # Allow puma to be restarted by `bin/rails restart` command.
 plugin :tmp_restart

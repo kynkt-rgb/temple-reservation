@@ -1,0 +1,19 @@
+# Rails（Puma）。127.0.0.1:3001 で待ち受ける
+[Unit]
+Description=temple-reservation backend (Rails API)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ec2-user
+WorkingDirectory=/home/ec2-user/temple-reservation/backend
+# DB の接続先・パスワード、SECRET_KEY_BASE など（リポジトリには入れない）
+EnvironmentFile=/etc/temple-reservation/backend.env
+Environment=PATH=/opt/ruby/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/opt/ruby/bin/bundle exec puma -C config/puma.rb
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
