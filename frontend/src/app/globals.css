@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+/* 基本設計書 8章：本文は16px以上、PC（横1366px以上）向け */
+@layer base {
+  html {
+    font-size: 16px;
+  }
+  body {
+    @apply min-w-[1280px] bg-gray-50 text-gray-900;
+    font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", Meiryo, sans-serif;
+  }
+}
+
+/* ボタン・入力欄の共通スタイル */
+@utility btn {
+  @apply inline-flex items-center justify-center rounded px-4 py-2 font-medium whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-50;
+}
+@utility btn-primary {
+  @apply btn bg-sky-700 text-white hover:bg-sky-800;
+}
+@utility btn-secondary {
+  @apply btn border border-gray-300 bg-white text-gray-900 hover:bg-gray-100;
+}
+@utility btn-danger {
+  @apply btn bg-red-600 text-white hover:bg-red-700;
+}
+@utility btn-danger-outline {
+  @apply btn border border-red-300 bg-white text-red-700 hover:bg-red-50;
+}
+@utility input {
+  @apply rounded border border-gray-400 bg-white px-3 py-2 focus:border-sky-600 focus:ring-2 focus:ring-sky-200 focus:outline-none disabled:bg-gray-100;
+}

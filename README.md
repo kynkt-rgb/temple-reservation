@@ -4,7 +4,7 @@
 
 紙のカレンダーとGoogleカレンダーでの二重管理をやめて予約を1か所にまとめ、予約の重複をシステムで防ぎます。
 
-> **現在の状況：設計段階**（要件定義・基本設計が完了。実装はこれから）
+> **現在の状況：実装中**（API・画面が完成。AWS への構築はこれから）
 
 ## 主な機能
 
@@ -46,9 +46,35 @@
 ```
 temple-reservation/
 ├── docs/        要件定義書・基本設計書
-├── frontend/    Next.js（予定）
-├── backend/     Rails（予定）
+├── frontend/    Next.js
+├── backend/     Rails（APIモード）
 └── infra/       Terraform（予定）
+```
+
+## 開発環境での起動
+
+必要なもの：Ruby 4.0、MySQL 8.4、Node.js（LTS）
+
+```bash
+# バックエンド（http://localhost:3001）
+cd backend
+bundle install
+bin/rails db:prepare
+bin/rails server
+
+# フロントエンド（http://localhost:3000）。別のターミナルで
+cd frontend
+npm install
+npm run dev
+```
+
+ブラウザで http://localhost:3000 を開きます。
+
+## テスト
+
+```bash
+cd backend && bundle exec rspec
+cd frontend && npm run lint && npx tsc --noEmit
 ```
 
 ## 公開方法についての注意
