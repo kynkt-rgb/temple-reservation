@@ -1,0 +1,91 @@
+# 日本語のメッセージ（基本設計書 5.2、6章）
+ja:
+  # エラーメッセージは項目名を前に付けず、メッセージだけをそのまま使う
+  errors:
+    format: "%{message}"
+    memorial_service:
+      slot_taken: "%{date} %{slot}枠にはすでに法要の予約があります（%{sponsor_name}様 %{service_type}）"
+    funeral_hold:
+      day_taken: "%{date}にはすでに葬儀の押さえがあります（%{slot}枠）"
+
+  activerecord:
+    models:
+      memorial_service: 法要予約
+      funeral_hold: 葬儀の押さえ
+    attributes:
+      memorial_service:
+        sponsor_name: 施主の名前
+        service_date: 日付
+        time_slot: 時間枠
+        service_type: 法要の種類
+        is_sodai: 総代
+        place: 場所
+        venue: 会場
+        has_meal: 食事
+        officiant: 担当
+        note: 備考
+      funeral_hold:
+        name: 名前
+        hold_date: 日付
+        time_slot: 時間枠
+        note: 備考
+    errors:
+      models:
+        memorial_service:
+          attributes:
+            sponsor_name:
+              blank: 施主の名前を入力してください
+              too_long: 施主の名前は%{count}文字以内で入力してください
+            service_date:
+              blank: 日付を入力してください
+            time_slot:
+              blank: 時間枠を選んでください
+              inclusion: 時間枠を選んでください
+            service_type:
+              blank: 法要の種類を選んでください
+              inclusion: 法要の種類を選んでください
+            is_sodai:
+              inclusion: 総代かどうかを選んでください
+            place:
+              blank: 場所を選んでください
+              inclusion: 場所を選んでください
+              home_requires_sodai: 自宅での法要は総代さんのみ登録できます
+            venue:
+              inclusion: 会場を選んでください
+              venue_required: 会場を選んでください
+              venue_not_allowed: 自宅での法要では会場を選べません
+            has_meal:
+              inclusion: 食事の有無を選んでください
+            officiant:
+              blank: 担当を選んでください
+              inclusion: 担当を選んでください
+            note:
+              too_long: 備考は%{count}文字以内で入力してください
+        funeral_hold:
+          attributes:
+            name:
+              blank: 名前を入力してください
+              too_long: 名前は%{count}文字以内で入力してください
+            hold_date:
+              blank: 日付を入力してください
+            time_slot:
+              blank: 時間枠を選んでください
+              inclusion: 時間枠を選んでください
+            note:
+              too_long: 備考は%{count}文字以内で入力してください
+
+  # 選択肢の表示名（基本設計書 3.4）。エラーメッセージの中で使う
+  enums:
+    memorial_service:
+      service_type:
+        shijukunichi: 四十九日
+        isshuki: 一周忌
+        sankaiki: 三回忌
+        nanakaiki: 七回忌
+        jusankaiki: 十三回忌
+        jushichikaiki: 十七回忌
+        nijusankaiki: 二十三回忌
+        nijushichikaiki: 二十七回忌
+        sanjusankaiki: 三十三回忌
+        gojukkaiki: 五十回忌
+        other: その他

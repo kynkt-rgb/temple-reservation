@@ -43,5 +43,9 @@ module Backend
 
     # 日時は日本時間で扱う（基本設計書 4.1）
     config.time_zone = "Tokyo"
+
+    # メッセージは日本語で返す（config/locales/ja.yml）
+    config.i18n.default_locale = :ja
+    config.i18n.available_locales = [ :ja, :en ]
   end
 end
