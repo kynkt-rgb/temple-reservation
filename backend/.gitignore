@@ -1,0 +1,17 @@
+# Bundler の設定
+/.bundle
+
+# 環境変数
+/.env*
+
+# ログ・一時ファイル
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+/tmp/pids/*
+!/tmp/pids/
+!/tmp/pids/.keep
+
+# 暗号化キー（Git に入れない）
+/config/master.key
