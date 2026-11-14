@@ -26,7 +26,7 @@ RSpec.describe "API 月カレンダー", type: :request do
 
     it "法要・葬儀の押さえを設計書どおりの形で返す" do
       service = create(:memorial_service, sponsor_name: "山田太郎", service_date: Date.new(2026, 11, 20),
-                                          time_slot: 10, service_type: "isshuki", venue: "kyakuden",
+                                          time_slot: 10, service_type: "isshuki",
                                           has_meal: true, note: "参列 8名")
       hold = create(:funeral_hold, name: "鈴木家", hold_date: Date.new(2026, 11, 2), time_slot: 13)
 
@@ -35,7 +35,7 @@ RSpec.describe "API 月カレンダー", type: :request do
       expect(json["memorial_services"].first).to eq(
         "id" => service.id, "sponsor_name" => "山田太郎", "service_date" => "2026-11-20",
         "time_slot" => 10, "service_type" => "isshuki", "is_sodai" => false, "place" => "temple",
-        "venue" => "kyakuden", "has_meal" => true, "officiant" => "jushoku", "note" => "参列 8名"
+        "has_meal" => true, "officiant" => "jushoku", "note" => "参列 8名"
       )
       expect(json["funeral_holds"].first).to eq(
         "id" => hold.id, "name" => "鈴木家", "hold_date" => "2026-11-02", "time_slot" => 13, "note" => nil

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LoadError, Loading } from "@/components/StatusMessage";
-import { officiantLabel, placeAndVenueLabel, serviceTypeLabel } from "@/constants/options";
+import { officiantLabel, placeLabel, serviceTypeLabel } from "@/constants/options";
 import { searchMemorialServices } from "@/lib/api";
 import { formatDateWithWeekday } from "@/lib/date";
 import { useApiData } from "@/lib/use-api-data";
@@ -40,7 +40,7 @@ export function SearchResults() {
         <table className="w-full border-collapse bg-white">
           <thead className="bg-gray-100">
             <tr>
-              {["日付", "時間枠", "施主名", "法要", "場所/会場", "担当"].map((heading) => (
+              {["日付", "時間枠", "施主名", "法要", "場所", "担当"].map((heading) => (
                 <th key={heading} className="border border-gray-300 px-3 py-2 text-left">
                   {heading}
                 </th>
@@ -60,7 +60,7 @@ export function SearchResults() {
                     </Link>
                   </td>
                   <td className="border border-gray-300 px-3 py-2">{serviceTypeLabel(service.service_type)}</td>
-                  <td className="border border-gray-300 px-3 py-2">{placeAndVenueLabel(service.place, service.venue)}</td>
+                  <td className="border border-gray-300 px-3 py-2">{placeLabel(service.place)}</td>
                   <td className="border border-gray-300 px-3 py-2">{officiantLabel(service.officiant)}</td>
                 </tr>
               );

@@ -120,34 +120,18 @@ RSpec.describe MemorialService, type: :model do
     end
   end
 
-  describe "場所と会場" do
-    it "場所が選択肢にない値なら inclusion" do
+  describe "場所" do
+    it "空なら blank" do
+      record = build(:memorial_service, place: nil)
+      expect(record).not_to be_valid
+      expect(error_codes(record, :place)).to eq([ :blank ])
+      expect(record.errors[:place]).to include("場所を選んでください")
+    end
+
+    it "選択肢にない値なら inclusion" do
       record = build(:memorial_service, place: "hall")
       expect(record).not_to be_valid
       expect(error_codes(record, :place)).to include(:inclusion)
-    end
-
-    it "お寺で観音堂は有効" do
-      expect(build(:memorial_service, venue: "kannondo")).to be_valid
-    end
-
-    it "お寺で会場が空なら venue_required" do
-      record = build(:memorial_service, place: "temple", venue: nil)
-      expect(record).not_to be_valid
-      expect(error_codes(record, :venue)).to include(:venue_required)
-      expect(record.errors[:venue]).to include("会場を選んでください")
-    end
-
-    it "自宅で会場があるなら venue_not_allowed" do
-      record = build(:memorial_service, :at_home, venue: "kyakuden")
-      expect(record).not_to be_valid
-      expect(error_codes(record, :venue)).to include(:venue_not_allowed)
-    end
-
-    it "会場が選択肢にない値なら inclusion" do
-      record = build(:memorial_service, venue: "hondo")
-      expect(record).not_to be_valid
-      expect(error_codes(record, :venue)).to include(:inclusion)
     end
   end
 
@@ -194,7 +178,7 @@ RSpec.describe MemorialService, type: :model do
     end
 
     it "同じ日付・時間枠には登録できず、既存の予約が分かるメッセージを返す" do
-      record = build(:memorial_service, service_date: date, time_slot: 10, venue: "kannondo")
+      record = build(:memorial_service, service_date: date, time_slot: 10)
       expect(record).not_to be_valid
       expect(error_codes(record, :time_slot)).to include(:slot_taken)
       expect(record.errors[:time_slot]).to include("11月20日 10時枠にはすでに法要の予約があります（山田太郎様 一周忌）")
@@ -235,14 +219,6 @@ RSpec.describe MemorialService, type: :model do
     end
   end
 
-  describe "R-4 会場は1枠1件" do
-    it "同じ会場でも、時間枠が違えば登録できる" do
-      date = Date.new(2026, 11, 20)
-      create(:memorial_service, service_date: date, time_slot: 10, venue: "kyakuden")
-      expect(build(:memorial_service, service_date: date, time_slot: 11, venue: "kyakuden")).to be_valid
-    end
-  end
-
   describe "R-6 自宅での法要は総代のみ" do
     it "総代でない施主は自宅を選べない" do
       record = build(:memorial_service, :at_home, is_sodai: false)
@@ -273,17 +249,8 @@ RSpec.describe MemorialService, type: :model do
       expect { save_without_validation(time_slot: 16) }.to raise_error(ActiveRecord::StatementInvalid)
     end
 
-    it "お寺で会場が空なら保存できない" do
-      expect { save_without_validation(venue: nil) }.to raise_error(ActiveRecord::StatementInvalid)
-    end
-
-    it "自宅で会場があるなら保存できない" do
-      expect { save_without_validation(is_sodai: true, place: "home", venue: "kyakuden") }
-        .to raise_error(ActiveRecord::StatementInvalid)
-    end
-
     it "総代でない自宅の法要は保存できない（R-6）" do
-      expect { save_without_validation(is_sodai: false, place: "home", venue: nil) }
+      expect { save_without_validation(is_sodai: false, place: "home") }
         .to raise_error(ActiveRecord::StatementInvalid)
     end
   end

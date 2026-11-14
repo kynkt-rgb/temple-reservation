@@ -4,7 +4,7 @@ class Api::MemorialServicesController < Api::BaseController
 
   PERMITTED_ATTRIBUTES = %i[
     sponsor_name service_date time_slot service_type is_sodai
-    place venue has_meal officiant note
+    place has_meal officiant note
   ].freeze
 
   # GET /api/memorial_services?sponsor_name=山田（施主名検索）

@@ -1,41 +1,49 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { ApiError, toApiError } from "@/lib/api";
-import { useVisitCount } from "@/lib/use-visit-count";
 
-type Result<T> = { requestKey: string; data?: T; error?: ApiError };
+type Result<T> = { param: string; data?: T; error?: ApiError };
 
 /**
  * param が変わるたび、または画面が再表示されるたびに load(param) を呼び、結果を返す。
- * 再表示のたびに取り直すので、ほかの画面で登録・更新した内容がすぐ反映される。
+ *
+ * Cache Components が有効な Next.js では、画面を移っても前の画面は隠れて残る（React の Activity）。
+ * 隠れるときに取得済みのデータを捨て、再表示で effect が再実行されたときに取り直すので、
+ * ほかの画面で登録・更新した内容がすぐ反映され、古いデータが一瞬表示されることもない。
+ * （node_modules/next/dist/docs/01-app/02-guides/preserving-ui-state.md）
+ *
  * load はモジュールで定義した関数（getCalendar など）を渡す。
  */
 export function useApiData<T>(param: string | null, load: (param: string) => Promise<T>) {
-  const visit = useVisitCount();
-  const requestKey = param === null ? null : `${visit}:${param}`;
   const [result, setResult] = useState<Result<T> | null>(null);
 
+  // 画面が隠れるときに、取得済みのデータを捨てる
+  useLayoutEffect(() => {
+    return () => setResult(null);
+  }, []);
+
+  // 表示されたとき・param が変わったときに取得する
   useEffect(() => {
-    if (param === null || requestKey === null) return;
+    if (param === null) return;
     let cancelled = false;
     load(param).then(
       (data) => {
-        if (!cancelled) setResult({ requestKey, data });
+        if (!cancelled) setResult({ param, data });
       },
       (error: unknown) => {
-        if (!cancelled) setResult({ requestKey, error: toApiError(error) });
+        if (!cancelled) setResult({ param, error: toApiError(error) });
       },
     );
     return () => {
       cancelled = true;
     };
-  }, [param, requestKey, load]);
+  }, [param, load]);
 
-  const current = requestKey !== null && result?.requestKey === requestKey ? result : null;
+  const current = param !== null && result?.param === param ? result : null;
   return {
     data: current?.data,
     error: current?.error,
-    loading: requestKey !== null && current === null,
+    loading: param !== null && current === null,
   };
 }

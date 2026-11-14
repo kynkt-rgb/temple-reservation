@@ -10,7 +10,6 @@ RSpec.describe "API 法要予約", type: :request do
       service_type: "isshuki",
       is_sodai: false,
       place: "temple",
-      venue: "kyakuden",
       has_meal: true,
       officiant: "jushoku",
       note: ""
@@ -71,7 +70,7 @@ RSpec.describe "API 法要予約", type: :request do
       now = Time.current
       rows = (1..201).map do |n|
         { sponsor_name: "山田#{n}", service_date: Date.new(2026, 1, 1) + n, time_slot: 10,
-          service_type: "isshuki", place: "temple", venue: "kyakuden", officiant: "jushoku",
+          service_type: "isshuki", place: "temple", officiant: "jushoku",
           created_at: now, updated_at: now }
       end
       MemorialService.insert_all!(rows)
@@ -125,16 +124,17 @@ RSpec.describe "API 法要予約", type: :request do
       expect(response).to have_http_status(:created)
       expect(json).to include(
         "sponsor_name" => "山田太郎", "service_date" => "2026-11-20", "time_slot" => 10,
-        "service_type" => "isshuki", "venue" => "kyakuden", "has_meal" => true
+        "service_type" => "isshuki", "place" => "temple", "has_meal" => true
       )
       expect(json["id"]).to eq(MemorialService.last.id)
     end
 
     it "総代さんの自宅での法要を登録できる" do
-      post_service(valid_attributes.merge(is_sodai: true, place: "home", venue: nil))
+      post_service(valid_attributes.merge(is_sodai: true, place: "home"))
 
       expect(response).to have_http_status(:created)
-      expect(json).to include("place" => "home", "venue" => nil, "is_sodai" => true)
+      expect(json).to include("place" => "home", "is_sodai" => true)
+      expect(json.keys).not_to include("venue")
     end
 
     it "入力エラーは 422 で、項目ごとのエラーを返す" do
@@ -160,7 +160,7 @@ RSpec.describe "API 法要予約", type: :request do
       create(:memorial_service, service_date: Date.new(2026, 11, 20), time_slot: 10,
                                 sponsor_name: "佐藤一郎", service_type: "sankaiki")
 
-      expect { post_service(valid_attributes.merge(venue: "kannondo")) }.not_to change(MemorialService, :count)
+      expect { post_service(valid_attributes.merge(officiant: "fukujushoku")) }.not_to change(MemorialService, :count)
 
       expect(response).to have_http_status(:unprocessable_content)
       expect(json["errors"]).to eq([
@@ -178,7 +178,7 @@ RSpec.describe "API 法要予約", type: :request do
     end
 
     it "R-6 総代でない施主の自宅での法要は 422（home_requires_sodai）" do
-      post_service(valid_attributes.merge(is_sodai: false, place: "home", venue: nil))
+      post_service(valid_attributes.merge(is_sodai: false, place: "home"))
 
       expect(response).to have_http_status(:unprocessable_content)
       expect(json["errors"]).to eq([
@@ -257,11 +257,11 @@ RSpec.describe "API 法要予約", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
-    it "チェックは更新後の値すべてに対して行う（自宅に変えるなら総代と会場も必要）" do
+    it "チェックは更新後の値すべてに対して行う（自宅に変えるなら総代も必要）" do
       patch_service({ place: "home" })
 
       expect(response).to have_http_status(:unprocessable_content)
-      expect(error_codes).to contain_exactly("venue_not_allowed", "home_requires_sodai")
+      expect(error_codes).to eq([ "home_requires_sodai" ])
       expect(record.reload.place).to eq("temple")
     end
 

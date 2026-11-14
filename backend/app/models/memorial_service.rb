@@ -10,7 +10,6 @@ class MemorialService < ApplicationRecord
   # DBには英語の文字列で保存する（基本設計書 3.4）
   enum :service_type, SERVICE_TYPES.index_with(&:itself), prefix: true, validate: { allow_nil: true }
   enum :place, { temple: "temple", home: "home" }, prefix: true, validate: { allow_nil: true }
-  enum :venue, { kyakuden: "kyakuden", kannondo: "kannondo" }, prefix: true, validate: { allow_nil: true }
   enum :officiant, { jushoku: "jushoku", fukujushoku: "fukujushoku" }, prefix: true, validate: { allow_nil: true }
 
   normalizes :sponsor_name, with: ->(name) { strip_spaces(name) }
@@ -24,9 +23,8 @@ class MemorialService < ApplicationRecord
   validates :has_meal, inclusion: { in: [ true, false ] }
   validates :note, length: { maximum: 500 }
 
-  validate :venue_matches_place
   validate :home_requires_sodai   # R-6
-  validate :slot_must_be_free     # R-1（R-4 も満たす）
+  validate :slot_must_be_free     # R-1
 
   # 同じ日付・時間枠にある、自分以外の法要
   def conflicting_service
@@ -52,15 +50,6 @@ class MemorialService < ApplicationRecord
   end
 
   private
-
-  # お寺なら会場は必須、自宅なら会場なし
-  def venue_matches_place
-    if place_temple? && venue.blank?
-      errors.add(:venue, :venue_required)
-    elsif place_home? && venue.present?
-      errors.add(:venue, :venue_not_allowed)
-    end
-  end
 
   def home_requires_sodai
     errors.add(:place, :home_requires_sodai) if place_home? && !is_sodai

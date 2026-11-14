@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_14_074154) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_14_082520) do
   create_table "funeral_holds", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", limit: 50, null: false, comment: "名前（喪家名など）"
     t.date "hold_date", null: false, comment: "日付"
@@ -29,7 +29,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_14_074154) do
     t.string "service_type", limit: 30, null: false, comment: "法要の種類"
     t.boolean "is_sodai", default: false, null: false, comment: "施主が総代さんか"
     t.string "place", limit: 10, default: "temple", null: false, comment: "場所（temple / home）"
-    t.string "venue", limit: 10, comment: "会場（kyakuden / kannondo）。自宅なら NULL"
     t.boolean "has_meal", default: false, null: false, comment: "食事の有無"
     t.string "officiant", limit: 20, null: false, comment: "担当（jushoku / fukujushoku）"
     t.string "note", limit: 500, comment: "備考"
@@ -37,7 +36,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_14_074154) do
     t.datetime "updated_at", null: false
     t.index ["service_date", "time_slot"], name: "idx_ms_date_slot", unique: true
     t.index ["sponsor_name"], name: "idx_ms_sponsor_name"
-    t.check_constraint "((`place` = _utf8mb4'temple') and (`venue` is not null)) or ((`place` = _utf8mb4'home') and (`venue` is null))", name: "chk_ms_venue"
     t.check_constraint "(`place` = _utf8mb4'temple') or (`is_sodai` = true)", name: "chk_ms_home_sodai"
     t.check_constraint "`time_slot` between 10 and 15", name: "chk_ms_time_slot"
   end

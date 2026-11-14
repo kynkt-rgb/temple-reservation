@@ -14,7 +14,6 @@ export type ServiceType =
   | "other";
 
 export type Place = "temple" | "home";
-export type Venue = "kyakuden" | "kannondo";
 export type Officiant = "jushoku" | "fukujushoku";
 
 /** 法要予約 */
@@ -27,7 +26,6 @@ export type MemorialService = {
   service_type: ServiceType;
   is_sodai: boolean;
   place: Place;
-  venue: Venue | null;
   has_meal: boolean;
   officiant: Officiant;
   note: string | null;
@@ -51,7 +49,6 @@ export type MemorialServiceInput = {
   service_type: ServiceType | null;
   is_sodai: boolean;
   place: Place;
-  venue: Venue | null;
   has_meal: boolean;
   officiant: Officiant | null;
   note: string;

@@ -20,7 +20,6 @@ ja:
         service_type: 法要の種類
         is_sodai: 総代
         place: 場所
-        venue: 会場
         has_meal: 食事
         officiant: 担当
         note: 備考
@@ -50,12 +49,8 @@ ja:
               blank: 場所を選んでください
               inclusion: 場所を選んでください
               home_requires_sodai: 自宅での法要は総代さんのみ登録できます
-            venue:
-              inclusion: 会場を選んでください
-              venue_required: 会場を選んでください
-              venue_not_allowed: 自宅での法要では会場を選べません
             has_meal:
-              inclusion: 食事の有無を選んでください
+              inclusion: 法要後に食事をするか選んでください
             officiant:
               blank: 担当を選んでください
               inclusion: 担当を選んでください

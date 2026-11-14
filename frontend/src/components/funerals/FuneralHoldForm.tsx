@@ -27,7 +27,7 @@ type Props = {
   deletion?: { message: string; run: () => Promise<void>; date: string };
 };
 
-/** 葬儀の押さえの登録・編集フォーム（基本設計書 2.6）。会場の項目は持たない */
+/** 葬儀の押さえの登録・編集フォーム（基本設計書 2.6） */
 export function FuneralHoldForm({ title, initial, submitLabel, notice, save, deletion }: Props) {
   const router = useRouter();
   const goBack = useGoBack();
@@ -39,6 +39,16 @@ export function FuneralHoldForm({ title, initial, submitLabel, notice, save, del
   const [saving, setSaving] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  // 画面は隠れて残るため、保存・削除・キャンセルで離れるときは入力内容を初期値に戻す。
+  // 次にこの画面を開いたとき、前の入力が残らないようにする（preserving-ui-state.md）
+  const reset = () => {
+    setInput(initial);
+    setErrors(NO_ERRORS);
+    setSaving(false);
+    setConfirming(false);
+    setDeleting(false);
+  };
 
   const update = (changes: Partial<FuneralHoldInput>) => {
     setInput((prev) => ({ ...prev, ...changes }));
@@ -54,6 +64,7 @@ export function FuneralHoldForm({ title, initial, submitLabel, notice, save, del
     setSaving(true);
     try {
       const saved = await save(input);
+      reset();
       router.push(calendarUrl(saved.hold_date, notice));
     } catch (error) {
       setErrors(toFormErrors(toApiError(error)));
@@ -66,6 +77,7 @@ export function FuneralHoldForm({ title, initial, submitLabel, notice, save, del
     setDeleting(true);
     try {
       await deletion.run();
+      reset();
       router.push(calendarUrl(deletion.date, "deleted"));
     } catch (error) {
       setErrors(toFormErrors(toApiError(error)));
@@ -136,7 +148,12 @@ export function FuneralHoldForm({ title, initial, submitLabel, notice, save, del
             </button>
           )}
           <div className="ml-auto flex gap-3">
-            <button type="button" className="btn-secondary" onClick={goBack} disabled={saving}>
+            <button type="button" className="btn-secondary" onClick={() => {
+                reset();
+                goBack();
+              }}
+              disabled={saving}
+            >
               キャンセル
             </button>
             <button type="submit" className="btn-primary" disabled={saving}>

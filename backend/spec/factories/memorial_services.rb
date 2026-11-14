@@ -7,7 +7,6 @@ FactoryBot.define do
     service_type { "isshuki" }
     is_sodai { false }
     place { "temple" }
-    venue { "kyakuden" }
     has_meal { false }
     officiant { "jushoku" }
     note { nil }
@@ -16,7 +15,6 @@ FactoryBot.define do
     trait :at_home do
       is_sodai { true }
       place { "home" }
-      venue { nil }
     end
   end
 end

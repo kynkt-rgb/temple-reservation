@@ -1,5 +1,5 @@
 # 葬儀の押さえ（基本設計書 3.3、5.2）
-# 会場・担当は持たない。法要とは別テーブルなので、同じ枠に法要が1件あっても登録できる（R-2、R-5）。
+# 担当は持たない。法要とは別テーブルなので、同じ枠に法要が1件あっても登録できる（R-2、R-5）。
 class FuneralHold < ApplicationRecord
   include TimeSlotReservable
 

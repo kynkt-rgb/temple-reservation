@@ -6,13 +6,7 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { FormErrorList } from "@/components/form/FormErrorList";
 import { FormField } from "@/components/form/FormField";
 import { RadioGroup } from "@/components/form/RadioGroup";
-import {
-  OFFICIANT_OPTIONS,
-  PLACE_OPTIONS,
-  SERVICE_TYPE_OPTIONS,
-  TIME_SLOTS,
-  VENUE_OPTIONS,
-} from "@/constants/options";
+import { OFFICIANT_OPTIONS, PLACE_OPTIONS, SERVICE_TYPE_OPTIONS, TIME_SLOTS } from "@/constants/options";
 import { toApiError } from "@/lib/api";
 import { calendarUrl, type NoticeKey } from "@/lib/navigation";
 import { useGoBack } from "@/lib/use-go-back";
@@ -21,8 +15,8 @@ import type { MemorialService, MemorialServiceInput, ServiceType } from "@/types
 
 const SLOT_OPTIONS = TIME_SLOTS.map((slot) => ({ value: slot as number, label: `${slot}時` }));
 const MEAL_OPTIONS = [
-  { value: true, label: "あり" },
-  { value: false, label: "なし" },
+  { value: true, label: "する" },
+  { value: false, label: "しない" },
 ];
 
 export const EMPTY_MEMORIAL_SERVICE: MemorialServiceInput = {
@@ -32,7 +26,6 @@ export const EMPTY_MEMORIAL_SERVICE: MemorialServiceInput = {
   service_type: null,
   is_sodai: false,
   place: "temple",
-  venue: "kyakuden",
   has_meal: false,
   officiant: null,
   note: "",
@@ -61,6 +54,16 @@ export function MemorialServiceForm({ title, initial, submitLabel, notice, save,
   const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  // 画面は隠れて残るため、保存・削除・キャンセルで離れるときは入力内容を初期値に戻す。
+  // 次にこの画面を開いたとき、前の入力が残らないようにする（preserving-ui-state.md）
+  const reset = () => {
+    setInput(initial);
+    setErrors(NO_ERRORS);
+    setSaving(false);
+    setConfirming(false);
+    setDeleting(false);
+  };
+
   const update = (changes: Partial<MemorialServiceInput>) => {
     setInput((prev) => ({ ...prev, ...changes }));
     // 直した項目のエラーと、ボタンの上のエラーは消す（次の送信でもう一度チェックする）
@@ -75,6 +78,7 @@ export function MemorialServiceForm({ title, initial, submitLabel, notice, save,
     setSaving(true);
     try {
       const saved = await save(input);
+      reset();
       router.push(calendarUrl(saved.service_date, notice));
     } catch (error) {
       setErrors(toFormErrors(toApiError(error)));
@@ -87,6 +91,7 @@ export function MemorialServiceForm({ title, initial, submitLabel, notice, save,
     setDeleting(true);
     try {
       await deletion.run();
+      reset();
       router.push(calendarUrl(deletion.date, "deleted"));
     } catch (error) {
       setErrors(toFormErrors(toApiError(error)));
@@ -176,30 +181,22 @@ export function MemorialServiceForm({ title, initial, submitLabel, notice, save,
             value={input.place}
             // 自宅は総代さんのみ（R-6）
             isOptionDisabled={(place) => place === "home" && !input.is_sodai}
-            onChange={(place) => update(place === "home" ? { place, venue: null } : { place })}
+            onChange={(place) => update({ place })}
           />
           {!input.is_sodai && <p className="mt-1 text-sm text-gray-600">自宅は総代さんのみ選べます</p>}
         </FormField>
 
-        <FormField label="会場" required={input.place === "temple"} errors={errors.fields.venue}>
-          <RadioGroup
-            name="venue"
-            label="会場"
-            options={VENUE_OPTIONS}
-            value={input.venue}
-            disabled={input.place === "home"}
-            onChange={(venue) => update({ venue })}
-          />
-        </FormField>
-
         <FormField label="食事" required errors={errors.fields.has_meal}>
-          <RadioGroup
-            name="has_meal"
-            label="食事"
-            options={MEAL_OPTIONS}
-            value={input.has_meal}
-            onChange={(has_meal) => update({ has_meal })}
-          />
+          <div className="flex flex-wrap items-center gap-x-6">
+            <span className="pt-2">法要後に食事をしますか？</span>
+            <RadioGroup
+              name="has_meal"
+              label="法要後に食事をしますか？"
+              options={MEAL_OPTIONS}
+              value={input.has_meal}
+              onChange={(has_meal) => update({ has_meal })}
+            />
+          </div>
         </FormField>
 
         <FormField label="担当" required errors={errors.fields.officiant}>
@@ -233,7 +230,12 @@ export function MemorialServiceForm({ title, initial, submitLabel, notice, save,
             </button>
           )}
           <div className="ml-auto flex gap-3">
-            <button type="button" className="btn-secondary" onClick={goBack} disabled={saving}>
+            <button type="button" className="btn-secondary" onClick={() => {
+                reset();
+                goBack();
+              }}
+              disabled={saving}
+            >
               キャンセル
             </button>
             <button type="submit" className="btn-primary" disabled={saving}>

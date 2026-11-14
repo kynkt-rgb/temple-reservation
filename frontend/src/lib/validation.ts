@@ -49,7 +49,6 @@ export function validateMemorialService(input: MemorialServiceInput): FormErrors
   if (!isValidDate(input.service_date)) add(fields, "service_date", "日付を入力してください");
   if (input.time_slot === null) add(fields, "time_slot", "時間枠を選んでください");
   if (input.service_type === null) add(fields, "service_type", "法要の種類を選んでください");
-  if (input.place === "temple" && input.venue === null) add(fields, "venue", "会場を選んでください");
   if (input.officiant === null) add(fields, "officiant", "担当を選んでください");
   if (input.note.length > 500) add(fields, "note", "備考は500文字以内で入力してください");
 

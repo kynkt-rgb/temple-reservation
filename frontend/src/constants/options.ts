@@ -1,5 +1,5 @@
 // 選択肢の値と表示名（基本設計書 3.4）
-import type { Officiant, Place, ServiceType, Venue } from "@/types/api";
+import type { Officiant, Place, ServiceType } from "@/types/api";
 
 export type Option<T> = { value: T; label: string };
 
@@ -31,11 +31,6 @@ export const PLACE_OPTIONS: Option<Place>[] = [
   { value: "home", label: "自宅" },
 ];
 
-export const VENUE_OPTIONS: Option<Venue>[] = [
-  { value: "kyakuden", label: "客殿" },
-  { value: "kannondo", label: "観音堂" },
-];
-
 export const OFFICIANT_OPTIONS: Option<Officiant>[] = [
   { value: "jushoku", label: "住職" },
   { value: "fukujushoku", label: "副住職" },
@@ -53,10 +48,4 @@ function labelOf<T>(options: Option<T>[], value: T | null): string {
 
 export const serviceTypeLabel = (value: ServiceType | null) => labelOf(SERVICE_TYPE_OPTIONS, value);
 export const placeLabel = (value: Place | null) => labelOf(PLACE_OPTIONS, value);
-export const venueLabel = (value: Venue | null) => labelOf(VENUE_OPTIONS, value);
 export const officiantLabel = (value: Officiant | null) => labelOf(OFFICIANT_OPTIONS, value);
-
-/** 「お寺/客殿」「自宅」の形 */
-export function placeAndVenueLabel(place: Place, venue: Venue | null): string {
-  return place === "home" ? placeLabel(place) : `${placeLabel(place)}/${venueLabel(venue)}`;
-}

@@ -9,7 +9,6 @@ module MemorialServiceSerializer
       service_type: record.service_type,
       is_sodai: record.is_sodai,
       place: record.place,
-      venue: record.venue,
       has_meal: record.has_meal,
       officiant: record.officiant,
       note: record.note
