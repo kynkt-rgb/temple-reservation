@@ -1,0 +1,7 @@
+# Terraform の作業フォルダ・状態ファイル（DB のパスワードが入るので GitHub に上げない）
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+# 自分の値（IP アドレスなど）
+terraform.tfvars

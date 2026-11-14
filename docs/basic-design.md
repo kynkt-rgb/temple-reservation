@@ -2,9 +2,9 @@
 
 | 項目 | 内容 |
 | --- | --- |
-| 文書バージョン | 0.8 |
+| 文書バージョン | 0.9 |
 | 作成日 | 2026-11-14 |
-| 更新日 | 2026-11-14（担当を任意に変更） |
+| 更新日 | 2026-11-14（9章を Terraform の実装に合わせて変更） |
 | 元にした文書 | [要件定義書](./requirements.md) v1.3 |
 
 本書は要件定義書で決めた内容を、画面・データベース・API・インフラの設計に落とし込んだものです。要件の番号（F-01、R-1 など）は要件定義書と同じものを使います。
@@ -621,24 +621,24 @@ frontend/src/
 | パブリックサブネット | 1つ。EC2 を置く |
 | プライベートサブネット | 2つ（別々のAZ）。RDS のサブネットグループに必要なため |
 | インターネットゲートウェイ | パブリックサブネット用 |
-| EC2 | 小さめのインスタンス（例：t3.small）、Amazon Linux。Elastic IP を付け、停止・起動してもアクセス先のIPアドレスが変わらないようにする |
-| RDS | MySQL 8.4、小さめのインスタンス（例：db.t3.micro）、シングルAZ、ストレージ暗号化あり |
-| RDS のバックアップ | 自動バックアップ 7日間保持、削除保護を有効にする |
-| IAM | EC2 用のロール（Session Manager 用） |
-| S3 | Terraform の状態ファイルを保存する（バージョニングを有効にする） |
+| EC2 | t3.micro（メモリ 1GB）、Amazon Linux 2023、ディスク gp3 20GB（暗号化あり）、スワップ 2GB。Elastic IP を付け、停止・起動してもアクセス先のIPアドレスが変わらないようにする |
+| RDS | MySQL 8.4.13（開発環境と同じ）、db.t4g.micro、シングルAZ、gp3 20GB、ストレージ暗号化あり |
+| RDS のバックアップ | 自動バックアップ 1日間保持（AWS の無料プランのアカウントでは、これより長くできない）。練習用でダミーデータだけを使うため、削除保護はなし・削除時の最終スナップショットも取らない |
 
-利用者は職員数名のため、費用を抑える構成にしている。NAT ゲートウェイやロードバランサーは使わない。
+- 使う AWS のサービスは EC2（Elastic IP を含む）と RDS だけにし、なるべく小さいサイズにする。NAT ゲートウェイ・ロードバランサー・S3・Secrets Manager などは使わない。
+- 費用の目安は 24時間動かして月 約 $36.5（RDS が約半分）。使わない期間は `terraform destroy` で消す。詳しくは `infra/README.md`。
 
 ### 9.2 セキュリティグループ
 
 | 対象 | 方向 | ポート | 許可する相手 |
 | --- | --- | --- | --- |
 | EC2 | 受信 | 80（HTTP） | すべて（0.0.0.0/0） |
+| EC2 | 受信 | 22（SSH） | 開発者の PC の IP アドレスのみ（`terraform.tfvars` の `my_ip`） |
 | EC2 | 送信 | すべて | すべて（OSの更新などのため） |
 | RDS | 受信 | 3306（MySQL） | EC2 のセキュリティグループのみ |
 
-- SSH（22番）は開けない。サーバーの操作は AWS Systems Manager の Session Manager で行う。
-- アクセス元のIPアドレスは制限しない。講師がレビューでアプリを確認できるようにするため。
+- サーバーの操作は SSH で行う（前回のタスク管理アプリと同じ方式）。22番は開発者の IP アドレスからだけ入れる。
+- 80番はアクセス元のIPアドレスを制限しない。講師がレビューでアプリを確認できるようにするため。
 
 ### 9.3 公開方法と注意点
 
@@ -651,22 +651,25 @@ frontend/src/
 
 ```
 infra/
-├── main.tf          プロバイダー、S3 バックエンドの設定
-├── variables.tf     インスタンスサイズなど
+├── versions.tf      Terraform・プロバイダーのバージョン
+├── variables.tf     IP アドレス、インスタンスサイズ、Ruby・Node.js・MySQL のバージョンなど
 ├── network.tf       VPC、サブネット、ルートテーブル、IGW
 ├── security.tf      セキュリティグループ
-├── ec2.tf           EC2、Elastic IP、IAM ロール
-├── rds.tf           RDS、サブネットグループ
-├── outputs.tf       EC2 の IP、RDS の接続先など
-└── terraform.tfvars.example
+├── ec2.tf           EC2、Elastic IP、SSH 鍵
+├── user_data.sh     EC2 の初回起動時の準備（スワップ、Ruby・Node.js・Nginx などのインストール）
+├── rds.tf           RDS、サブネットグループ、DB のパスワード
+├── outputs.tf       アプリの URL、SSH のコマンド、RDS の接続先など
+├── terraform.tfvars.example
+└── README.md        使い方・費用の目安
 ```
 
-- DBのパスワードは Terraform のコードに書かない。RDS の機能で AWS Secrets Manager に自動作成させ（`manage_master_user_password`）、Rails はそこから読み込む。
-- `terraform.tfvars`（実際の値）は Git に入れない。
+- 前回のタスク管理アプリの Terraform 設定をもとに、必要な部分だけを流用する。
+- DBのパスワードは Terraform のコードに書かない。`random_password` でランダムに作り、`terraform.tfstate` の中だけに保存する。Rails には環境変数 `DB_PASSWORD` で渡す。
+- `terraform.tfstate`（パスワードを含む）と `terraform.tfvars`（実際の値）は Git に入れない。状態ファイルは開発者の PC に置く。
 
 ### 9.5 デプロイ
 
-本リリースでは、Session Manager で EC2 に入って手作業でデプロイする。手順は別途 `docs/deploy.md` にまとめる。
+本リリースでは、SSH で EC2 に入って手作業でデプロイする。手順は別途 `docs/deploy.md` にまとめる。
 
 1. `git pull` で最新のコードを取得する。
 2. バックエンド：`bundle install` → `rails db:migrate` → Puma を再起動する。
