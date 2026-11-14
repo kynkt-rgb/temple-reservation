@@ -106,11 +106,9 @@ RSpec.describe MemorialService, type: :model do
   end
 
   describe "担当" do
-    it "空なら blank" do
-      record = build(:memorial_service, officiant: nil)
-      expect(record).not_to be_valid
-      expect(error_codes(record, :officiant)).to eq([ :blank ])
-      expect(record.errors[:officiant]).to include("担当を選んでください")
+    it "空（指定なし＝2人で対応）でも登録できる" do
+      record = create(:memorial_service, officiant: nil)
+      expect(record.reload.officiant).to be_nil
     end
 
     it "選択肢にない値なら inclusion" do

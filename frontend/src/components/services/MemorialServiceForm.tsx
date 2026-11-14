@@ -199,7 +199,7 @@ export function MemorialServiceForm({ title, initial, submitLabel, notice, save,
           </div>
         </FormField>
 
-        <FormField label="担当" required errors={errors.fields.officiant}>
+        <FormField label="担当" errors={errors.fields.officiant}>
           <RadioGroup
             name="officiant"
             label="担当"

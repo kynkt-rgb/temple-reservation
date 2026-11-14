@@ -129,6 +129,13 @@ RSpec.describe "API 法要予約", type: :request do
       expect(json["id"]).to eq(MemorialService.last.id)
     end
 
+    it "担当を指定しなくても登録できる（2人で対応）" do
+      post_service(valid_attributes.merge(officiant: nil))
+
+      expect(response).to have_http_status(:created)
+      expect(json["officiant"]).to be_nil
+    end
+
     it "総代さんの自宅での法要を登録できる" do
       post_service(valid_attributes.merge(is_sodai: true, place: "home"))
 

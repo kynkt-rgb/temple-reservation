@@ -52,7 +52,6 @@ ja:
             has_meal:
               inclusion: 法要後に食事をするか選んでください
             officiant:
-              blank: 担当を選んでください
               inclusion: 担当を選んでください
             note:
               too_long: 備考は%{count}文字以内で入力してください

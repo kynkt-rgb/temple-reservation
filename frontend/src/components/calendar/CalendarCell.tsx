@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import { OFFICIANT_SHORT_LABELS, placeLabel, serviceTypeLabel } from "@/constants/options";
+import { officiantShortLabel, placeLabel, serviceTypeLabel } from "@/constants/options";
 import { formatDateJa } from "@/lib/date";
 import type { FuneralHold, MemorialService } from "@/types/api";
 
@@ -57,7 +57,7 @@ export function CalendarCell({ date, slot, service, funeral, dayHasFuneral, menu
             </span>
             <span className="block truncate">{serviceTypeLabel(service.service_type)}</span>
             <span className="block truncate">
-              {placeLabel(service.place)}/{OFFICIANT_SHORT_LABELS[service.officiant]}
+              {placeLabel(service.place)}/{officiantShortLabel(service.officiant)}
             </span>
           </Link>
         )}

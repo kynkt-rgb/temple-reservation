@@ -27,7 +27,8 @@ export type MemorialService = {
   is_sodai: boolean;
   place: Place;
   has_meal: boolean;
-  officiant: Officiant;
+  /** null は指定なし（2人で対応） */
+  officiant: Officiant | null;
   note: string | null;
 };
 

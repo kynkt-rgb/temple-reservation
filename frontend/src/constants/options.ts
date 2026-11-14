@@ -31,16 +31,22 @@ export const PLACE_OPTIONS: Option<Place>[] = [
   { value: "home", label: "自宅" },
 ];
 
-export const OFFICIANT_OPTIONS: Option<Officiant>[] = [
+/** 担当は任意。指定なし（null）は「2人で対応」を表す（法要は基本2人で行うため） */
+export const OFFICIANT_OPTIONS: Option<Officiant | null>[] = [
+  { value: null, label: "指定なし（2人）" },
   { value: "jushoku", label: "住職" },
   { value: "fukujushoku", label: "副住職" },
 ];
 
+/** 一覧などに出す担当の表示名。指定なしは「2人」 */
+export function officiantLabel(value: Officiant | null): string {
+  return value === null ? "2人" : labelOf(OFFICIANT_OPTIONS, value);
+}
+
 /** カレンダーのセル用の短い表示名 */
-export const OFFICIANT_SHORT_LABELS: Record<Officiant, string> = {
-  jushoku: "住職",
-  fukujushoku: "副住",
-};
+export function officiantShortLabel(value: Officiant | null): string {
+  return { jushoku: "住職", fukujushoku: "副住", none: "2人" }[value ?? "none"];
+}
 
 function labelOf<T>(options: Option<T>[], value: T | null): string {
   return options.find((option) => option.value === value)?.label ?? "";
@@ -48,4 +54,3 @@ function labelOf<T>(options: Option<T>[], value: T | null): string {
 
 export const serviceTypeLabel = (value: ServiceType | null) => labelOf(SERVICE_TYPE_OPTIONS, value);
 export const placeLabel = (value: Place | null) => labelOf(PLACE_OPTIONS, value);
-export const officiantLabel = (value: Officiant | null) => labelOf(OFFICIANT_OPTIONS, value);

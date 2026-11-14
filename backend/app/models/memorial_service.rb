@@ -10,6 +10,7 @@ class MemorialService < ApplicationRecord
   # DBには英語の文字列で保存する（基本設計書 3.4）
   enum :service_type, SERVICE_TYPES.index_with(&:itself), prefix: true, validate: { allow_nil: true }
   enum :place, { temple: "temple", home: "home" }, prefix: true, validate: { allow_nil: true }
+  # 担当は任意。指定なし（nil）は「2人で対応」を表す
   enum :officiant, { jushoku: "jushoku", fukujushoku: "fukujushoku" }, prefix: true, validate: { allow_nil: true }
 
   normalizes :sponsor_name, with: ->(name) { strip_spaces(name) }
@@ -18,7 +19,6 @@ class MemorialService < ApplicationRecord
   validates :service_date, presence: true
   validates :service_type, presence: true
   validates :place, presence: true
-  validates :officiant, presence: true
   validates :is_sodai, inclusion: { in: [ true, false ] }
   validates :has_meal, inclusion: { in: [ true, false ] }
   validates :note, length: { maximum: 500 }

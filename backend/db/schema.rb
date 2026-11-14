@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_14_082520) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_14_084350) do
   create_table "funeral_holds", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", limit: 50, null: false, comment: "名前（喪家名など）"
     t.date "hold_date", null: false, comment: "日付"
@@ -30,7 +30,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_14_082520) do
     t.boolean "is_sodai", default: false, null: false, comment: "施主が総代さんか"
     t.string "place", limit: 10, default: "temple", null: false, comment: "場所（temple / home）"
     t.boolean "has_meal", default: false, null: false, comment: "食事の有無"
-    t.string "officiant", limit: 20, null: false, comment: "担当（jushoku / fukujushoku）"
+    t.string "officiant", limit: 20, comment: "担当（jushoku / fukujushoku）。NULL は指定なし（2人で対応）"
     t.string "note", limit: 500, comment: "備考"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
